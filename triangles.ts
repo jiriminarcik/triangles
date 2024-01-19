@@ -170,10 +170,11 @@ const lagrangian = fn(
       cx: Vec(numTriangles, Real),
       cy: Vec(numTriangles, Real),
       weight: Real,
+      ref: Vec(numTriangles, [Real, Real, Real]),
     },
   ],
   Real,
-  ({ ax, ay, bx, by, cx, cy, weight }) => {
+  ({ ax, ay, bx, by, cx, cy, weight, ref }) => {
 
     const discrepancy = sum(
       vec(numTriangles, Real, (i) => {
@@ -181,9 +182,9 @@ const lagrangian = fn(
         const b = [bx[i], by[i]];
         const c = [cx[i], cy[i]];
   
-        const term1 = sqr(sub(norm(vsub(b, a)), reference[i][0]));
-        const term2 = sqr(sub(norm(vsub(c, b)), reference[i][1]));
-        const term3 = sqr(sub(norm(vsub(a, c)), reference[i][2]));
+        const term1 = sqr(sub(norm(vsub(b, a)), ref[i][0]));
+        const term2 = sqr(sub(norm(vsub(c, b)), ref[i][1]));
+        const term3 = sqr(sub(norm(vsub(a, c)), ref[i][2]));
 
         return add(add(term1, term2), term3);
       }),
@@ -247,6 +248,7 @@ const compiled = await compile(
         cx: Vec(numTriangles, Real),
         cy: Vec(numTriangles, Real),
         weight: Real,
+        ref: Vec(numTriangles, [Real, Real, Real]),
       },
     ],
     {
@@ -279,6 +281,7 @@ const grad: optimizer.Fn = (
     cx: x.subarray(numTriangles * 4, numTriangles * 5) as any,
     cy: x.subarray(numTriangles * 5, numTriangles * 6) as any,
     weight,
+    ref: reference as any,
   });
 
   // https://github.com/rose-lang/rose/issues/111
